@@ -49,14 +49,11 @@ public struct ProjectResources {
         resourceTypes: [ResourceType],
         warning: (String) -> Void
     ) throws -> ProjectResources {
-        let ignoreFile = rswiftIgnoreURL.flatMap { try? IgnoreFile(ignoreFileURL: $0) } ?? IgnoreFile()
-
         let buildConfigurations = try xcodeproj.buildConfigurations(forTarget: targetName)
 
         let paths = try xcodeproj.resourcePaths(forTarget: targetName)
         let urls = paths
             .map { $0.url(with: sourceTreeURLs.url(for:)) }
-            .filter { !ignoreFile.matches(url: $0) }
 
         let infoPlists: [PropertyListResource]
         let entitlements: [PropertyListResource]
@@ -83,6 +80,7 @@ public struct ProjectResources {
 
         return try parseURLs(
             urls: urls,
+            rswiftIgnoreURL: rswiftIgnoreURL,
             infoPlists: infoPlists,
             codeSignEntitlements: entitlements,
             parseFontsAsFiles: parseFontsAsFiles,
@@ -94,6 +92,7 @@ public struct ProjectResources {
 
     public static func parseURLs(
         urls: [URL],
+        rswiftIgnoreURL: URL?,
         infoPlists: [PropertyListResource],
         codeSignEntitlements: [PropertyListResource],
         parseFontsAsFiles: Bool,
@@ -101,6 +100,9 @@ public struct ProjectResources {
         resourceTypes: [ResourceType],
         warning: (String) -> Void
     ) throws -> ProjectResources {
+
+        let ignoreFile = rswiftIgnoreURL.flatMap { try? IgnoreFile(ignoreFileURL: $0) } ?? IgnoreFile()
+        let urls = urls.filter { !ignoreFile.matches(url: $0) }
 
         let assetCatalogs: [AssetCatalog]
         let files: [FileResource]

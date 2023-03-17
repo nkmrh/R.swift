@@ -94,6 +94,7 @@ public struct RswiftCore {
 
         let resources = try ProjectResources.parseURLs(
             urls: urls,
+            rswiftIgnoreURL: rswiftIgnoreURL,
             infoPlists: [],
             codeSignEntitlements: [],
             parseFontsAsFiles: true,
